@@ -1,0 +1,105 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "4a13cb57-47b9-41c6-be72-96751c532240",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "tables": {
+    "r_pokemon": {
+      "name": "r_pokemon",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "r_vote": {
+      "name": "r_vote",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text(255)",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        },
+        "votedforid": {
+          "name": "votedforid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "votedagainstid": {
+          "name": "votedagainstid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "r_vote_votedforid_r_pokemon_id_fk": {
+          "name": "r_vote_votedforid_r_pokemon_id_fk",
+          "tableFrom": "r_vote",
+          "tableTo": "r_pokemon",
+          "columnsFrom": [
+            "votedforid"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "r_vote_votedagainstid_r_pokemon_id_fk": {
+          "name": "r_vote_votedagainstid_r_pokemon_id_fk",
+          "tableFrom": "r_vote",
+          "tableTo": "r_pokemon",
+          "columnsFrom": [
+            "votedagainstid"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
+  }
+}

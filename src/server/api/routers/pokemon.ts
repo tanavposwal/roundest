@@ -4,9 +4,9 @@ import {
   createTRPCRouter,
   publicProcedure,
 } from "@/server/api/trpc";
-import { posts } from "@/server/db/schema";
+import { pokemon, vote } from "@/server/db/schema";
 
-export const postRouter = createTRPCRouter({
+export const pokemonRouter = createTRPCRouter({
   hello: publicProcedure
     .input(z.object({ text: z.string() }))
     .query(({ input }) => {
