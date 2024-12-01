@@ -2,49 +2,88 @@ import Link from "next/link";
 
 import { LatestPost } from "@/app/_components/post";
 import { api, HydrateClient } from "@/trpc/server";
+import { PokemonSprite } from "@/utils/sprite";
 
-export default async function Home() {
-  // sample trpc query
-  const hello = await api.pokemon.hello({ text: "from tRPC" });
+function VotePageContents() {
+  const { data, isLoading, refetch } = api.pokemon.getPair.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+  const { mutate: voteMutation } = api.pokemon.vote.useMutation();
+
+  if (isLoading || !data) return <VoteFallback />;
+
+  const [pokemonOne, pokemonTwo] = data;
+
+  function handleVote(winnerId: number, loserId: number) {
+    void voteMutation({ votedForId: winnerId, votedAgainstId: loserId });
+    void refetch();
+  }
 
   return (
-    <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-linear-to-b from-[#2e026d] to-[#15162c] text-white">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-          </h1>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/usage/first-steps"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">First Steps →</h3>
-              <div className="text-lg">
-                Just the basics - Everything you need to know to set up your
-                database and authentication.
-              </div>
-            </Link>
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">Documentation →</h3>
-              <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
-            </Link>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-2xl text-white">
-              {hello ? hello.greeting : "Loading tRPC query..."}
-            </p>
-          </div>
+    <>
+      {/* Pokemon One */}
+      <div key={pokemonOne.id} className="flex flex-col items-center gap-4">
+        <PokemonSprite dexId={pokemonOne.id} className="h-64 w-64" />
+        <div className="text-center">
+          <span className="text-lg text-gray-500">#{pokemonOne.id}</span>
+          <h2 className="text-2xl font-bold capitalize">{pokemonOne.name}</h2>
+          <button
+            onClick={() => handleVote(pokemonOne.id, pokemonTwo.id)}
+            className="rounded-lg bg-blue-500 px-8 py-3 text-lg font-semibold text-white transition-colors hover:bg-blue-600"
+          >
+            Vote
+          </button>
         </div>
-      </main>
-    </HydrateClient>
+      </div>
+
+      {/* Pokemon Two */}
+      <div key={pokemonTwo.id} className="flex flex-col items-center gap-4">
+        <PokemonSprite dexId={pokemonTwo.id} className="h-64 w-64" />
+        <div className="text-center">
+          <span className="text-lg text-gray-500">#{pokemonTwo.id}</span>
+          <h2 className="text-2xl font-bold capitalize">{pokemonTwo.name}</h2>
+          <button
+            onClick={() => handleVote(pokemonTwo.id, pokemonOne.id)}
+            className="rounded-lg bg-blue-500 px-8 py-3 text-lg font-semibold text-white transition-colors hover:bg-blue-600"
+          >
+            Vote
+          </button>
+        </div>
+      </div>
+    </>
   );
 }
+
+function VoteFallback() {
+  return (
+    <>
+      {[1, 2].map((i) => (
+        <div key={i} className="flex flex-col items-center gap-4">
+          <div className="h-64 w-64 animate-pulse rounded-lg bg-gray-800/10" />
+          <div className="flex flex-col items-center justify-center space-y-2 text-center">
+            <div className="h-6 w-16 animate-pulse rounded bg-gray-800/10" />
+            <div className="h-8 w-32 animate-pulse rounded bg-gray-800/10" />
+            <div className="h-12 w-24 animate-pulse rounded bg-gray-800/10" />
+          </div>
+        </div>
+      ))}
+    </>
+  );
+}
+
+function VotePage() {
+  return (
+    <div className="flex min-h-[80vh] items-center justify-center gap-16">
+      <Head>
+        <title>Roundest (T3 Stack Version)</title>
+      </Head>
+      <VotePageContents />
+    </div>
+  );
+}
+
+VotePage.getLayout = getLayout;
+
+export default VotePage;
